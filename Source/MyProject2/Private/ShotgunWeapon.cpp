@@ -8,11 +8,12 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 AShotgunWeapon::AShotgunWeapon()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	RootComp = CreateDefaultSubobject<USceneComponent>(FName(TEXT("Root")));
 	SetRootComponent(RootComp);
@@ -29,6 +30,11 @@ AShotgunWeapon::AShotgunWeapon()
 	Damage = 10.f;
 	MuzzleEffect = nullptr;
 	FireSound = nullptr;
+
+	ReboundPitch = 20.f;
+	ReboundRecoveryTime = 1.f;
+	Elapsed = 0.f;
+	bRecovering = false;
 }
 
 void AShotgunWeapon::Fire(ACharacter* InstigatorCharacter)
@@ -83,6 +89,8 @@ void AShotgunWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	OriginalPitch = GetActorRotation().Pitch;
+
 }
 
 // Called every frame
@@ -90,6 +98,23 @@ void AShotgunWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!bRecovering)
+	{
+		return;
+	}
+
+	Elapsed += DeltaTime;
+	float Alpha = FMath::Clamp(Elapsed / ReboundRecoveryTime, 0.f, 1.f);
+
+	FRotator CurrentRotation = GetActorRotation();
+	CurrentRotation.Pitch = FMath::Lerp(OriginalPitch + ReboundPitch, OriginalPitch, Alpha);
+	SetActorRotation(CurrentRotation);
+
+	if (Alpha >= 1.f) 
+	{
+		Elapsed = 0.f;
+		bRecovering = false;
+	}
 }
 
 FVector AShotgunWeapon::GetFireStart(ACharacter* InstigatorCharacter) const
@@ -126,6 +151,8 @@ void AShotgunWeapon::FireSinglePellet(const FVector& Start, const FVector& Direc
 		ECC_Visibility,
 		QueryParams
 	);
+
+	bRecovering = true;
 
 	const FColor LineColor = bHit ? FColor::Green : FColor::Red;
 	DrawDebugLine(

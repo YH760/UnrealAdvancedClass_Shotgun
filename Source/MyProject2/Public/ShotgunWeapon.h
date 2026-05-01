@@ -33,16 +33,22 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	USceneComponent* MuzzlePoint;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shotgun")
+	UPROPERTY(EditAnywhere, Category = "Shotgun")
 	int32 PelletCount;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shotgun")
+	UPROPERTY(EditAnywhere, Category = "Shotgun")
 	float SpreadAngle;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shotgun")
+	UPROPERTY(EditAnywhere, Category = "Shotgun")
 	float Range;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shotgun")
+	UPROPERTY(EditAnywhere, Category = "Shotgun")
 	float Damage;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Shotgun")
+	UPROPERTY(EditAnywhere, Category = "Shotgun")
 	TSubclassOf<UDamageType> DamageTypeClass;
+	
+	UPROPERTY(EditAnywhere, Category = "Shotgun|Rebound")
+	float ReboundPitch;
+	UPROPERTY(EditAnywhere, Category = "Shotgun|Rebound")
+	float ReboundRecoveryTime;
+
 
 	UPROPERTY(EditAnywhere, Category = "Effect")
 	UParticleSystem* MuzzleEffect;
@@ -53,4 +59,8 @@ private:
 	FVector GetFireStart(ACharacter* InstigatorCharacter) const;
 	FVector GetFireForward(ACharacter* InstigatorCharacter) const;
 	void FireSinglePellet(const FVector& Start, const FVector& Direction, ACharacter* InstigatorCharacter);
+
+	float OriginalPitch;
+	float Elapsed;
+	bool bRecovering;
 };
