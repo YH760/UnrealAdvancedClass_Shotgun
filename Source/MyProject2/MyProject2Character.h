@@ -12,6 +12,7 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 class AShotgunWeapon;
+class UDamageComponent;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -63,19 +64,22 @@ public:
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	float TargetRecoilPitch;    // ¸ñÇ¥ ¹Ýµ¿°ª
+	float TargetRecoilPitch;    // ï¿½ï¿½Ç¥ ï¿½Ýµï¿½ï¿½ï¿½
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	float RecoilKickPitch;      // ¹ß»ç ¼ø°£ Æ¢´Â ¼¼±â
+	float RecoilKickPitch;      // ï¿½ß»ï¿½ ï¿½ï¿½ï¿½ï¿½ Æ¢ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	float RecoilFollowSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	float RecoilRecoverSpeed;   // º¹±Í ¼Óµµ
+	float RecoilRecoverSpeed;   // ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½
 
-	float CurrentRecoilPitch;   // ÇöÀç Àû¿ë ÁßÀÎ ¹Ýµ¿°ª
+	float CurrentRecoilPitch;   // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ýµï¿½ï¿½ï¿½
 
+	UFUNCTION()
+	void OnDead(AController* InstigatedBy);
+	
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
@@ -87,9 +91,7 @@ protected:
 	void SpawnAndAttachWeapon();
 
 	void ApplyCameraRecoil();
-
-protected:
-
+	
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 

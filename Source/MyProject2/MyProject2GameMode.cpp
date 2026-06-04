@@ -3,6 +3,7 @@
 #include "MyProject2GameMode.h"
 #include "MyProject2Character.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Widget/HUDManager.h"
 
 AMyProject2GameMode::AMyProject2GameMode()
 {
@@ -11,5 +12,6 @@ AMyProject2GameMode::AMyProject2GameMode()
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
+		HUDClass = AHUDManager::StaticClass();
 	}
 }

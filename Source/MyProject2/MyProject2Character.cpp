@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "ShotgunWeapon.h"
+#include "DamageComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -71,6 +72,11 @@ void AMyProject2Character::BeginPlay()
 	Super::BeginPlay();
 
 	SpawnAndAttachWeapon();
+
+	if (UDamageComponent* DC = FindComponentByClass<UDamageComponent>())
+	{
+		DC->OnHealthDead.AddDynamic(this, &AMyProject2Character::OnDead);
+	}
 }
 
 void AMyProject2Character::ApplyCameraRecoil()
@@ -100,17 +106,17 @@ void AMyProject2Character::Tick(float DeltaTime)
 
 void AMyProject2Character::SpawnAndAttachWeapon()
 {
-	// TODO: ShotgunWeaponClass À¯È¿¼º È®ÀÎ
+	// TODO: ShotgunWeaponClass ìœ íš¨ì„± í™•ì¸
 	if (ShotgunWeaponClass == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ShotgunWeaponClass°¡ À¯È¿ÇÏÁö ¾Ê½À´Ï´Ù."));
+		UE_LOG(LogTemp, Warning, TEXT("ShotgunWeaponClassê°€ ìœ íš¨í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤."));
 		return;
 	}
 
 	UWorld* World = GetWorld();
 	if (World == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("World°¡ À¯È¿ÇÏÁö ¾Ê½À´Ï´Ù."));
+		UE_LOG(LogTemp, Warning, TEXT("Worldê°€ ìœ íš¨í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤."));
 		return;
 	}
 
@@ -124,13 +130,13 @@ void AMyProject2Character::SpawnAndAttachWeapon()
 
 	if (EquippedWeapon == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("EquippedWeapon »ı¼º¿¡ ½ÇÆĞÇß½À´Ï´Ù."));
+		UE_LOG(LogTemp, Warning, TEXT("EquippedWeapon ìƒì„±ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤."));
 		return;
 	}
 
 	if (GetMesh() == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Mesh°¡ À¯È¿ÇÏÁö ¾Ê½À´Ï´Ù."));
+		UE_LOG(LogTemp, Warning, TEXT("Meshê°€ ìœ íš¨í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤."));
 		return;
 	}
 
@@ -221,11 +227,31 @@ void AMyProject2Character::OnFire()
 {
 	if (EquippedWeapon == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("EquippedWeaponÀÌ À¯È¿ÇÏÁö ¾Ê½À´Ï´Ù."));
+		UE_LOG(LogTemp, Warning, TEXT("EquippedWeaponì´ ìœ íš¨í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤."));
 		return;
 	}
 
 	EquippedWeapon->Fire(this);
 	ApplyCameraRecoil();
+}
+
+void AMyProject2Character::OnDead(AController* InstigatedBy)
+{
+	// ì›€ì§ì„ ì •ì§€
+	GetCharacterMovement()->DisableMovement();
+
+	// ì…ë ¥ ì°¨ë‹¨
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		DisableInput(PC);
+	}
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+	GetMesh()->SetSimulatePhysics(true);
+	
+	UE_LOG(LogTemp, Warning, TEXT(">>> í”Œë ˆì´ì–´ ì‚¬ë§"));
 }
 
